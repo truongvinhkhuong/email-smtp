@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NAVER Vietnam AI Hackathon - Email Sender</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            color: #2c3e50;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #00aaaa 0%, #00cccc 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 170, 170, 0.3);
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e0e0e0;
+        }
+        
+        .card h2 {
+            color: #00aaaa;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            font-weight: 600;
+        }
+        
+        .upload-section {
+            text-align: center;
+        }
+        
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+            margin: 20px 0;
+        }
+        
+        .file-input {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+        
+        .file-input-button {
+            background: linear-gradient(135deg, #00aaaa 0%, #00cccc 100%);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 50px;
+            border: none;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 170, 170, 0.3);
+        }
+        
+        .file-input-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 170, 170, 0.4);
+        }
+        
+        .file-name {
+            margin-top: 10px;
+            color: #666;
+            font-style: italic;
+        }
+        
+        .control-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #00aaaa 0%, #00cccc 100%);
+            color: white;
+            box-shadow: 0 5px 15px rgba(0, 170, 170, 0.3);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 170, 170, 0.4);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.3);
+        }
+        
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(231, 76, 60, 0.4);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            color: white;
+            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.3);
+        }
+        
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(39, 174, 96, 0.4);
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+        
+        .status-section {
+            grid-column: 1 / -1;
+        }
+        
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .status-item {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            border-left: 4px solid #00aaaa;
+        }
+        
+        .status-item h3 {
+            color: #00aaaa;
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+        
+        .status-item p {
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00aaaa, #00cccc);
+            border-radius: 10px;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+        
+        .logs-section {
+            background: #2c3e50;
+            color: #ecf0f1;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .logs-section h3 {
+            color: #00aaaa;
+            margin-bottom: 15px;
+        }
+        
+        .log-entry {
+            padding: 8px 0;
+            border-bottom: 1px solid #34495e;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+        
+        .log-entry.success {
+            color: #2ecc71;
+        }
+        
+        .log-entry.error {
+            color: #e74c3c;
+        }
+        
+        .log-entry.info {
+            color: #3498db;
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            font-weight: 500;
+        }
+        
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #00aaaa;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .control-buttons {
+                flex-direction: column;
+            }
+            
+            .status-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>NAVER Vietnam AI Hackathon</h1>
+            <p>Email Sender System</p>
+        </div>
+        
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'error' if category == 'error' else 'success' }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <div class="main-content">
+            <!-- Upload Section -->
+            <div class="card upload-section">
+                <h2>Upload CSV File</h2>
+                <form id="uploadForm" method="POST" action="/upload" enctype="multipart/form-data">
+                    <div class="file-input-wrapper">
+                        <input type="file" id="csvFile" name="csv_file" accept=".csv" class="file-input" required>
+                        <label for="csvFile" class="file-input-button">
+                            Choose CSV File
+                        </label>
+                    </div>
+                    <div class="file-name" id="fileName"></div>
+                    <button type="submit" class="btn btn-primary" id="uploadBtn">
+                        Upload File
+                    </button>
+                </form>
+            </div>
+            
+            <!-- Control Section -->
+            <div class="card">
+                <h2>Email Control</h2>
+                <div class="control-buttons">
+                    <button id="startBtn" class="btn btn-success" onclick="startSending()">
+                        Start Sending
+                    </button>
+                    <button id="stopBtn" class="btn btn-danger" onclick="stopSending()" disabled>
+                        Stop Sending
+                    </button>
+                    <button id="refreshBtn" class="btn btn-primary" onclick="refreshStatus()">
+                        Refresh
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Status Section -->
+        <div class="card status-section">
+            <h2>Sending Status</h2>
+            
+            <div class="status-grid">
+                <div class="status-item">
+                    <h3 id="totalEmails">0</h3>
+                    <p>Total Emails</p>
+                </div>
+                <div class="status-item">
+                    <h3 id="sentEmails">0</h3>
+                    <p>Sent Successfully</p>
+                </div>
+                <div class="status-item">
+                    <h3 id="failedEmails">0</h3>
+                    <p>Failed</p>
+                </div>
+                <div class="status-item">
+                    <h3 id="currentBatch">0</h3>
+                    <p>Current Batch</p>
+                </div>
+            </div>
+            
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            
+            <div id="statusInfo">
+                <p><strong>Status:</strong> <span id="statusText">Ready</span></p>
+                <p><strong>Start Time:</strong> <span id="startTime">-</span></p>
+                <p><strong>End Time:</strong> <span id="endTime">-</span></p>
+            </div>
+        </div>
+        
+        <!-- Logs Section -->
+        <div class="logs-section">
+            <h3>Recent Logs</h3>
+            <div id="logsContainer">
+                <div class="log-entry info">System ready. Upload a CSV file to begin.</div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let statusInterval;
+        
+        // File input change handler
+        document.getElementById('csvFile').addEventListener('change', function(e) {
+            const fileName = e.target.files[0]?.name || 'No file selected';
+            document.getElementById('fileName').textContent = fileName;
+        });
+        
+        // Form submission handler
+        document.getElementById('uploadForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const uploadBtn = document.getElementById('uploadBtn');
+            const originalText = uploadBtn.textContent;
+            
+            uploadBtn.disabled = true;
+            uploadBtn.textContent = 'Uploading...';
+            
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showAlert(data.message, 'success');
+                    document.getElementById('fileName').textContent = 'No file selected';
+                    document.getElementById('csvFile').value = '';
+                } else {
+                    showAlert(data.message, 'error');
+                }
+            })
+            .catch(error => {
+                showAlert('Error uploading file: ' + error, 'error');
+            })
+            .finally(() => {
+                uploadBtn.disabled = false;
+                uploadBtn.textContent = originalText;
+            });
+        });
+        
+        // Start email sending
+        function startSending() {
+            fetch('/start_sending', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showAlert('Email sending started!', 'success');
+                    document.getElementById('startBtn').disabled = true;
+                    document.getElementById('stopBtn').disabled = false;
+                    startStatusUpdates();
+                } else {
+                    showAlert(data.message, 'error');
+                }
+            })
+            .catch(error => {
+                showAlert('Error starting email sending: ' + error, 'error');
+            });
+        }
+        
+        // Stop email sending
+        function stopSending() {
+            fetch('/stop_sending', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showAlert('Email sending stopped!', 'info');
+                    document.getElementById('startBtn').disabled = false;
+                    document.getElementById('stopBtn').disabled = true;
+                    stopStatusUpdates();
+                } else {
+                    showAlert(data.message, 'error');
+                }
+            })
+            .catch(error => {
+                showAlert('Error stopping email sending: ' + error, 'error');
+            });
+        }
+        
+        // Refresh status
+        function refreshStatus() {
+            updateStatus();
+            updateLogs();
+        }
+        
+        // Start status updates
+        function startStatusUpdates() {
+            statusInterval = setInterval(() => {
+                updateStatus();
+                updateLogs();
+            }, 2000);
+        }
+        
+        // Stop status updates
+        function stopStatusUpdates() {
+            if (statusInterval) {
+                clearInterval(statusInterval);
+                statusInterval = null;
+            }
+        }
+        
+        // Update status
+        function updateStatus() {
+            fetch('/status')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('totalEmails').textContent = data.total_emails || 0;
+                document.getElementById('sentEmails').textContent = data.sent_emails || 0;
+                document.getElementById('failedEmails').textContent = data.failed_emails || 0;
+                document.getElementById('currentBatch').textContent = data.current_batch || 0;
+                
+                // Update progress bar
+                const total = data.total_emails || 0;
+                const sent = data.sent_emails || 0;
+                const progress = total > 0 ? (sent / total) * 100 : 0;
+                document.getElementById('progressFill').style.width = progress + '%';
+                
+                // Update status text
+                let statusText = 'Ready';
+                if (data.is_running) {
+                    statusText = 'Sending...';
+                    document.getElementById('startBtn').disabled = true;
+                    document.getElementById('stopBtn').disabled = false;
+                } else if (data.sent_emails > 0) {
+                    statusText = 'Completed';
+                    document.getElementById('startBtn').disabled = false;
+                    document.getElementById('stopBtn').disabled = true;
+                } else {
+                    document.getElementById('startBtn').disabled = false;
+                    document.getElementById('stopBtn').disabled = true;
+                }
+                document.getElementById('statusText').textContent = statusText;
+                
+                // Update times
+                document.getElementById('startTime').textContent = data.start_time || '-';
+                document.getElementById('endTime').textContent = data.end_time || '-';
+            })
+            .catch(error => {
+                console.error('Error updating status:', error);
+            });
+        }
+        
+        // Update logs
+        function updateLogs() {
+            fetch('/logs')
+            .then(response => response.json())
+            .then(data => {
+                const logsContainer = document.getElementById('logsContainer');
+                logsContainer.innerHTML = '';
+                
+                // Show recent logs
+                const allLogs = [...(data.logs || []), ...(data.errors || [])];
+                allLogs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                
+                allLogs.slice(0, 20).forEach(log => {
+                    const logEntry = document.createElement('div');
+                    logEntry.className = `log-entry ${log.type}`;
+                    logEntry.textContent = `[${new Date(log.timestamp).toLocaleTimeString()}] ${log.message}`;
+                    logsContainer.appendChild(logEntry);
+                });
+                
+                if (allLogs.length === 0) {
+                    const logEntry = document.createElement('div');
+                    logEntry.className = 'log-entry info';
+                    logEntry.textContent = 'No logs available yet.';
+                    logsContainer.appendChild(logEntry);
+                }
+            })
+            .catch(error => {
+                console.error('Error updating logs:', error);
+            });
+        }
+        
+        // Show alert
+        function showAlert(message, type) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.textContent = message;
+            
+            const container = document.querySelector('.container');
+            container.insertBefore(alertDiv, container.firstChild);
+            
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 5000);
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            updateStatus();
+            updateLogs();
+        });
+    </script>
+</body>
+</html>

@@ -1,25 +1,23 @@
 # NAVER Vietnam AI Hackathon - Email Sender
 # Requirements file
-#
-# Lưu ý: Dự án này chỉ sử dụng Python built-in libraries
-# Không cần cài đặt thêm package nào!
 
 # Python version requirement
 # Python >= 3.6
 
-# Built-in libraries được sử dụng:
-# - smtplib (SMTP client)
-# - email (email message creation)
-# - csv (CSV file handling)
-# - json (JSON data handling)
-# - time (time delays)
-# - logging (logging system)
-# - re (regex for email validation)
-# - os (operating system interface)
-# - sys (system-specific parameters)
-# - datetime (date and time handling)
-# - typing (type hints)
-# - argparse (command line argument parsing)
+# Web framework
+Flask==2.3.3
+Werkzeug==2.3.7
 
-# Không cần cài đặt gì thêm!
-# Chỉ cần Python 3.6+ là đủ để chạy dự án.
+# Email handling
+secure-smtplib==0.1.1
+
+# File handling (using built-in csv module)
+
+# Production server
+gunicorn==21.2.0
+
+# Environment variables
+python-dotenv==1.0.0
+
+# HTTP requests
+requests==2.31.0
