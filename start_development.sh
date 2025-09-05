@@ -91,7 +91,7 @@ fi
 print_success "🎉 Starting Flask development server..."
 echo ""
 echo "📋 Application Information:"
-echo "   • URL: http://localhost:5000"
+echo "   • URL: http://localhost:5005"
 echo "   • Environment: Development"
 echo "   • Debug Mode: Enabled"
 echo ""

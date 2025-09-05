@@ -112,7 +112,7 @@ def main():
     print("=" * 50)
     
     # Test configuration
-    base_url = "http://localhost:5001"
+    base_url = "http://localhost:5005"
     if len(sys.argv) > 1:
         base_url = sys.argv[1]
     

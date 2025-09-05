@@ -10,7 +10,7 @@ WorkingDirectory=/Users/khuong/Khuong-D/mail-test
 Environment=PATH=/Users/khuong/Khuong-D/mail-test/env/bin
 Environment=FLASK_APP=app.py
 Environment=FLASK_ENV=production
-ExecStart=/Users/khuong/Khuong-D/mail-test/env/bin/gunicorn --bind 127.0.0.1:5000 --workers 4 --timeout 300 --keep-alive 2 --max-requests 1000 --max-requests-jitter 100 app:app
+ExecStart=/Users/khuong/Khuong-D/mail-test/env/bin/gunicorn --bind 127.0.0.1:5005 --workers 4 --timeout 300 --keep-alive 2 --max-requests 1000 --max-requests-jitter 100 app:app
 ExecReload=/bin/kill -s HUP $MAINPID
 Restart=always
 RestartSec=10
