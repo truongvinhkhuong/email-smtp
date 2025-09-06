@@ -61,6 +61,13 @@ email_status = {
     'errors': []
 }
 
+# Initialize with a welcome log
+email_status['logs'].append({
+    'timestamp': datetime.now().isoformat(),
+    'type': 'info',
+    'message': '🚀 Email Sender Application Started - Ready to send emails!'
+})
+
 # Email sending thread
 email_thread = None
 
@@ -331,12 +338,24 @@ def upload_csv():
             # Store in session or global variable
             app.config['participants_data'] = participants_data
             
+            # Add log entry
+            email_status['logs'].append({
+                'timestamp': datetime.now().isoformat(),
+                'type': 'success',
+                'message': f'📁 CSV file uploaded successfully: {len(participants_data)} participants loaded'
+            })
+            
             return jsonify({'success': True, 'message': f'Successfully uploaded {len(participants_data)} participants'})
         else:
             return jsonify({'success': False, 'message': 'Please upload a CSV file'})
             
     except Exception as e:
         logger.error(f"Error uploading CSV: {str(e)}")
+        email_status['errors'].append({
+            'timestamp': datetime.now().isoformat(),
+            'type': 'error',
+            'message': f'❌ Error uploading CSV: {str(e)}'
+        })
         return jsonify({'success': False, 'message': f'Error uploading file: {str(e)}'})
 
 @app.route('/start_sending', methods=['POST'])
@@ -359,6 +378,13 @@ def start_sending():
         # Validate template type
         if template_type not in EMAIL_TEMPLATES:
             return jsonify({'success': False, 'message': 'Invalid template type'})
+        
+        # Add log entry
+        email_status['logs'].append({
+            'timestamp': datetime.now().isoformat(),
+            'type': 'info',
+            'message': f'🚀 Starting email sending with {template_type} template for {len(participants_data)} participants'
+        })
         
         # Start email sending in background thread
         email_thread = threading.Thread(target=send_emails_batch, args=(participants_data, template_type))
