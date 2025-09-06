@@ -1,14 +1,4 @@
-# NAVER Vietnam AI Hackathon - Email Sender
-
-## Features
-- **Modern Web UI** - Beautiful, responsive interface with real-time status updates
-- **CSV Upload** - Easy file upload with validation
-- **Bulk Email Sending** - Send personalized emails to hundreds of participants
-- **Real-time Monitoring** - Live progress tracking and logging
-- **Gmail Integration** - Pre-configured with Gmail SMTP
-- **Production Ready** - Nginx configuration and systemd service
-- **Security** - Rate limiting, SSL/TLS, and secure headers
-- **Resume Functionality** - Continue interrupted email campaigns
+# Email Sender
 
 ## Quick Start
 
