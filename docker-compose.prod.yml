@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  email-sender:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: naver-email-sender-prod
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:5005:5005"  # Bind to localhost only for nginx proxy
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_ENV=production
+      - SENDER_EMAIL=${SENDER_EMAIL}
+      - SENDER_PASSWORD=${SENDER_PASSWORD}
+      - BATCH_SIZE=${BATCH_SIZE:-100}
+      - DELAY_BETWEEN_BATCHES=${DELAY_BETWEEN_BATCHES:-300}
+      - DELAY_BETWEEN_EMAILS=${DELAY_BETWEEN_EMAILS:-1}
+    env_file:
+      - .env
+    volumes:
+      - ./logs:/app/logs
+      - ./templates:/app/templates
+      - ./static:/app/static
+      - ./participants_test.csv:/app/participants_test.csv
+      - /etc/localtime:/etc/localtime:ro  # Sync timezone
+    networks:
+      - email-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5005/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.0'
+        reservations:
+          memory: 512M
+          cpus: '0.5'
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  email-network:
+    driver: bridge
+    driver_opts:
+      com.docker.network.bridge.name: naver-email-br

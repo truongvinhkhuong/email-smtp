@@ -4,7 +4,7 @@ import multiprocessing
 import os
 
 # Server socket
-bind = "127.0.0.1:5005"
+bind = "0.0.0.0:5005"  # Changed to 0.0.0.0 for Docker
 backlog = 2048
 
 # Worker processes
@@ -54,7 +54,7 @@ timeout = 300
 graceful_timeout = 30
 
 # Forwarded allow ips (for nginx proxy)
-forwarded_allow_ips = '127.0.0.1'
+forwarded_allow_ips = '*'  # Allow all IPs for Docker
 
 # Secure headers
 secure_scheme_headers = {
