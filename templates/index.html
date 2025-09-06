@@ -287,6 +287,34 @@
             font-weight: 500;
         }
         
+        /* Status text styling */
+        .status-ready {
+            color: #27ae60;
+            font-weight: bold;
+        }
+        
+        .status-sending {
+            color: #f39c12;
+            font-weight: bold;
+            animation: pulse 1.5s infinite;
+        }
+        
+        .status-completed {
+            color: #27ae60;
+            font-weight: bold;
+        }
+        
+        .status-completed-with-errors {
+            color: #e67e22;
+            font-weight: bold;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+        
         .log-entry.info {
             color: #3498db;
         }
@@ -544,6 +572,9 @@
                     <button id="refreshBtn" class="btn btn-primary" onclick="refreshStatus()">
                         Refresh
                     </button>
+                    <button onclick="resetStatus()" class="btn btn-secondary" style="padding: 5px 10px; font-size: 12px;">
+                        Reset
+                    </button>
                 </div>
             </div>
         </div>
@@ -764,61 +795,109 @@
             }
         }
         
-        // Update status
+        // Update status with persistent display
+        let lastStatusData = null;
         function updateStatus() {
             fetch('/status')
             .then(response => response.json())
             .then(data => {
+                // Only update if there are actual changes
+                const hasChanges = !lastStatusData || 
+                    lastStatusData.total_emails !== data.total_emails ||
+                    lastStatusData.sent_emails !== data.sent_emails ||
+                    lastStatusData.failed_emails !== data.failed_emails ||
+                    lastStatusData.current_batch !== data.current_batch ||
+                    lastStatusData.is_running !== data.is_running ||
+                    lastStatusData.start_time !== data.start_time ||
+                    lastStatusData.end_time !== data.end_time;
+                
+                if (!hasChanges && lastStatusData) {
+                    return; // No changes, skip update
+                }
+                
+                lastStatusData = data;
+                
+                // Update basic stats
                 document.getElementById('totalEmails').textContent = data.total_emails || 0;
                 document.getElementById('sentEmails').textContent = data.sent_emails || 0;
                 document.getElementById('failedEmails').textContent = data.failed_emails || 0;
                 document.getElementById('currentBatch').textContent = data.current_batch || 0;
                 
-                // Update progress bar
+                // Update progress bar with smooth animation
                 const total = data.total_emails || 0;
                 const sent = data.sent_emails || 0;
                 const failed = data.failed_emails || 0;
                 const progress = total > 0 ? (sent / total) * 100 : 0;
-                document.getElementById('progressFill').style.width = progress + '%';
+                
+                // Smooth progress bar animation
+                const progressFill = document.getElementById('progressFill');
+                const currentWidth = parseFloat(progressFill.style.width) || 0;
+                if (Math.abs(currentWidth - progress) > 0.1) {
+                    progressFill.style.transition = 'width 0.5s ease-in-out';
+                    progressFill.style.width = progress + '%';
+                }
                 
                 // Update progress text
                 const progressText = total > 0 ? `${sent}/${total} (${progress.toFixed(1)}%)` : '0/0 (0%)';
-                document.getElementById('progressFill').setAttribute('title', `Sent: ${sent}, Failed: ${failed}, Total: ${total}`);
+                progressFill.setAttribute('title', `Sent: ${sent}, Failed: ${failed}, Total: ${total}`);
                 
-                // Update status text
+                // Update status text with better states
                 let statusText = 'Ready';
+                let statusClass = 'status-ready';
+                
                 if (data.is_running) {
                     statusText = 'Sending...';
+                    statusClass = 'status-sending';
                     document.getElementById('startBtn').disabled = true;
                     document.getElementById('stopBtn').disabled = false;
                 } else if (data.sent_emails > 0) {
-                    statusText = 'Completed';
+                    if (data.failed_emails > 0) {
+                        statusText = `Completed (${data.failed_emails} failed)`;
+                        statusClass = 'status-completed-with-errors';
+                    } else {
+                        statusText = 'Completed Successfully';
+                        statusClass = 'status-completed';
+                    }
                     document.getElementById('startBtn').disabled = false;
                     document.getElementById('stopBtn').disabled = true;
                 } else {
                     document.getElementById('startBtn').disabled = false;
                     document.getElementById('stopBtn').disabled = true;
                 }
-                document.getElementById('statusText').textContent = statusText;
                 
-                // Update times
-                document.getElementById('startTime').textContent = data.start_time || '-';
-                document.getElementById('endTime').textContent = data.end_time || '-';
+                const statusElement = document.getElementById('statusText');
+                statusElement.textContent = statusText;
+                statusElement.className = statusClass;
+                
+                // Update times (only if they exist)
+                if (data.start_time) {
+                    document.getElementById('startTime').textContent = new Date(data.start_time).toLocaleString();
+                }
+                if (data.end_time) {
+                    document.getElementById('endTime').textContent = new Date(data.end_time).toLocaleString();
+                }
                 
                 // Update template info
                 const selectedTemplate = document.querySelector('input[name="emailTemplate"]:checked');
                 document.getElementById('currentTemplate').textContent = selectedTemplate ? selectedTemplate.value : '-';
                 
-                // Update last processed info
+                // Update last processed info with better formatting
                 if (data.logs && data.logs.length > 0) {
                     const lastLog = data.logs[data.logs.length - 1];
+                    let processedText = lastLog.message;
+                    
+                    // Format the message better
                     if (lastLog.message.includes('Processing email')) {
-                        document.getElementById('lastProcessed').textContent = lastLog.message;
+                        processedText = `📧 ${lastLog.message}`;
                     } else if (lastLog.message.includes('Email sent successfully')) {
-                        document.getElementById('lastProcessed').textContent = lastLog.message;
-                    } else {
-                        document.getElementById('lastProcessed').textContent = lastLog.message;
+                        processedText = `✅ ${lastLog.message}`;
+                    } else if (lastLog.message.includes('Failed to send')) {
+                        processedText = `❌ ${lastLog.message}`;
+                    } else if (lastLog.message.includes('Batch')) {
+                        processedText = `📦 ${lastLog.message}`;
                     }
+                    
+                    document.getElementById('lastProcessed').textContent = processedText;
                 } else {
                     document.getElementById('lastProcessed').textContent = '-';
                 }
@@ -946,6 +1025,44 @@
             logsContainer.appendChild(logEntry);
             
             showAlert('Logs cleared successfully', 'info');
+        }
+        
+        // Reset status function
+        function resetStatus() {
+            // Reset status data
+            lastStatusData = null;
+            
+            // Reset UI elements
+            document.getElementById('totalEmails').textContent = '0';
+            document.getElementById('sentEmails').textContent = '0';
+            document.getElementById('failedEmails').textContent = '0';
+            document.getElementById('currentBatch').textContent = '0';
+            
+            // Reset progress bar
+            const progressFill = document.getElementById('progressFill');
+            progressFill.style.width = '0%';
+            progressFill.style.transition = 'none';
+            progressFill.setAttribute('title', 'Sent: 0, Failed: 0, Total: 0');
+            
+            // Reset status text
+            const statusElement = document.getElementById('statusText');
+            statusElement.textContent = 'Ready';
+            statusElement.className = 'status-ready';
+            
+            // Reset times
+            document.getElementById('startTime').textContent = '-';
+            document.getElementById('endTime').textContent = '-';
+            document.getElementById('currentTemplate').textContent = '-';
+            document.getElementById('lastProcessed').textContent = '-';
+            
+            // Reset buttons
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('stopBtn').disabled = true;
+            
+            // Update button state
+            updateStartButtonState();
+            
+            showAlert('Status reset successfully', 'info');
         }
         
         // Track user scroll to determine if we should auto-scroll
