@@ -90,9 +90,6 @@ FLASK_APP=app.py
 FLASK_ENV=production
 SECRET_KEY=your-secret-key
 
-# Email Configuration
-SENDER_EMAIL=khuonggg2924@gmail.com
-SENDER_PASSWORD=oboxhjcfxkzqnpug
 
 # Email Sending Settings
 BATCH_SIZE=100
