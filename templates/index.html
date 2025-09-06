@@ -259,6 +259,10 @@
             max-height: 400px;
             overflow-y: auto;
             border: 1px solid #4a5f7a;
+            min-height: 200px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.4;
         }
         
         .logs-section h3 {
@@ -583,21 +587,13 @@
         <!-- Logs Section -->
         <div class="logs-section">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h3>Real-time Logs</h3>
                 <div style="display: flex; align-items: center; gap: 10px;">
-                    <h3>📋 Real-time Logs</h3>
                     <span id="connectionStatus" style="font-size: 12px; padding: 2px 6px; border-radius: 3px; background: #27ae60; color: white;">
                         ● Connected
                     </span>
-                </div>
-                <div style="display: flex; gap: 5px;">
                     <button onclick="refreshStatus()" class="btn btn-secondary" style="padding: 5px 10px; font-size: 12px;">
-                        🔄 Refresh
-                    </button>
-                    <button onclick="testLogs()" class="btn btn-info" style="padding: 5px 10px; font-size: 12px;">
-                        🧪 Test
-                    </button>
-                    <button onclick="debugLogs()" class="btn btn-warning" style="padding: 5px 10px; font-size: 12px;">
-                        🔍 Debug
+                        Refresh
                     </button>
                 </div>
             </div>
@@ -754,7 +750,7 @@
             statusInterval = setInterval(() => {
                 updateStatus();
                 updateLogs();
-            }, 1000); // Reduced to 1 second for more real-time updates
+            }, 2000); // Increased to 2 seconds for stability
         }
         
         // Stop status updates
@@ -832,51 +828,46 @@
             });
         }
         
-        // Update logs with better error handling and debugging
+        // Update logs with optimized performance
+        let lastLogCount = 0;
         function updateLogs() {
             const connectionStatus = document.getElementById('connectionStatus');
             const logsContainer = document.getElementById('logsContainer');
-            
-            // Show loading state
-            connectionStatus.textContent = 'Loading...';
-            connectionStatus.style.background = '#f39c12';
-            
-            console.log('Fetching logs...');
             
             fetch('/logs?' + new Date().getTime(), {
                 method: 'GET',
                 headers: {
                     'Cache-Control': 'no-cache',
-                    'Pragma': 'no-cache',
-                    'Accept': 'application/json'
+                    'Pragma': 'no-cache'
                 }
             })
             .then(response => {
-                console.log('Logs response status:', response.status);
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 return response.json();
             })
             .then(data => {
-                console.log('Logs data received:', data);
-                
                 // Update connection status
                 connectionStatus.textContent = '● Connected';
                 connectionStatus.style.background = '#27ae60';
+                
+                // Only update if there are new logs
+                const currentLogCount = (data.logs || []).length + (data.errors || []).length;
+                if (currentLogCount === lastLogCount && currentLogCount > 0) {
+                    return; // No new logs, skip update
+                }
+                lastLogCount = currentLogCount;
                 
                 // Clear container
                 logsContainer.innerHTML = '';
                 
                 // Show recent logs
                 const allLogs = [...(data.logs || []), ...(data.errors || [])];
-                console.log('All logs:', allLogs);
-                
                 allLogs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
                 
                 if (allLogs.length > 0) {
-                    console.log('Displaying', allLogs.length, 'logs');
-                    allLogs.slice(0, 50).forEach((log, index) => {
+                    allLogs.slice(0, 30).forEach(log => {
                         const logEntry = document.createElement('div');
                         logEntry.className = `log-entry ${log.type}`;
                         
@@ -885,10 +876,8 @@
                         
                         logEntry.innerHTML = `<span style="color: #888;">[${timestamp}]</span> ${message}`;
                         logsContainer.appendChild(logEntry);
-                        console.log(`Added log ${index + 1}:`, log);
                     });
                 } else {
-                    console.log('No logs to display');
                     const logEntry = document.createElement('div');
                     logEntry.className = 'log-entry info';
                     logEntry.innerHTML = 'No logs available yet. Upload a CSV file and start sending emails to see logs here.';
@@ -909,54 +898,6 @@
             });
         }
         
-        // Test logs function
-        function testLogs() {
-            console.log('Testing logs...');
-            fetch('/test_logs', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log('Test logs response:', data);
-                if (data.success) {
-                    showAlert(`Test log added! Total logs: ${data.total_logs}`, 'success');
-                    // Refresh logs display
-                    updateLogs();
-                } else {
-                    showAlert('Error adding test log: ' + data.message, 'error');
-                }
-            })
-            .catch(error => {
-                console.error('Test logs error:', error);
-                showAlert('Test logs error: ' + error.message, 'error');
-            });
-        }
-        
-        // Debug logs function
-        function debugLogs() {
-            console.log('Debugging logs...');
-            fetch('/logs?' + new Date().getTime())
-            .then(response => response.json())
-            .then(data => {
-                console.log('Debug logs data:', data);
-                const debugInfo = `Debug Info:
-Total logs: ${data.total_logs}
-Total errors: ${data.total_errors}
-Is running: ${data.is_running}
-Last log: ${data.logs && data.logs.length > 0 ? data.logs[data.logs.length - 1].message : 'None'}
-Timestamp: ${data.timestamp}`;
-                
-                alert(debugInfo);
-                console.log('Debug info:', debugInfo);
-            })
-            .catch(error => {
-                console.error('Debug error:', error);
-                alert('Debug error: ' + error.message);
-            });
-        }
         
         // Show alert
         function showAlert(message, type) {
@@ -977,6 +918,14 @@ Timestamp: ${data.timestamp}`;
             updateStatus();
             updateLogs();
             updateStartButtonState();
+            
+            // Start periodic updates only if not already running
+            if (!statusInterval) {
+                setInterval(() => {
+                    updateStatus();
+                    updateLogs();
+                }, 3000); // 3 seconds for stability
+            }
         });
     </script>
 </body>
