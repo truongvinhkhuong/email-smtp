@@ -71,10 +71,21 @@
             text-align: center;
         }
         
+        .upload-description {
+            color: #666;
+            margin-bottom: 20px;
+            font-size: 0.9em;
+        }
+        
+        .file-upload-area {
+            margin: 20px 0;
+        }
+        
         .file-input-wrapper {
             position: relative;
-            display: inline-block;
-            margin: 20px 0;
+            display: block;
+            margin: 0 auto;
+            max-width: 400px;
         }
         
         .file-input {
@@ -85,28 +96,53 @@
             cursor: pointer;
         }
         
-        .file-input-button {
-            background: linear-gradient(135deg, #00aaaa 0%, #00cccc 100%);
-            color: white;
-            padding: 15px 30px;
-            border-radius: 50px;
-            border: none;
-            font-size: 1.1em;
-            font-weight: 600;
-            cursor: pointer;
+        .file-upload-box {
+            border: 2px dashed #ddd;
+            border-radius: 10px;
+            padding: 40px 20px;
+            text-align: center;
+            background: #fafafa;
             transition: all 0.3s ease;
-            box-shadow: 0 5px 15px rgba(0, 170, 170, 0.3);
+            cursor: pointer;
         }
         
-        .file-input-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0, 170, 170, 0.4);
+        .file-upload-box:hover {
+            border-color: #00aaaa;
+            background: #f0f8ff;
+        }
+        
+        .upload-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+        
+        .upload-text {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .upload-text strong {
+            color: #333;
+            font-size: 1.1em;
+        }
+        
+        .upload-text span {
+            color: #666;
+            font-size: 0.9em;
         }
         
         .file-name {
-            margin-top: 10px;
-            color: #666;
-            font-style: italic;
+            margin-top: 15px;
+            color: #00aaaa;
+            font-weight: 500;
+            font-size: 0.9em;
+        }
+        
+        .upload-btn {
+            margin-top: 20px;
+            padding: 12px 30px;
+            font-size: 1.1em;
         }
         
         .control-buttons {
@@ -238,14 +274,21 @@
         
         .log-entry.success {
             color: #2ecc71;
+            font-weight: 500;
         }
         
         .log-entry.error {
             color: #e74c3c;
+            font-weight: 500;
         }
         
         .log-entry.info {
             color: #3498db;
+        }
+        
+        .log-entry.warning {
+            color: #f39c12;
+            font-weight: 500;
         }
         
         .alert {
@@ -292,6 +335,76 @@
             display: none;
         }
         
+        /* Template Selection Styles */
+        .template-selection {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .template-option {
+            position: relative;
+        }
+        
+        .template-option input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .template-label {
+            display: block;
+            cursor: pointer;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+        
+        .template-label:hover {
+            border-color: #00aaaa;
+            background: #f8f9fa;
+        }
+        
+        .template-option input[type="radio"]:checked + .template-label {
+            border-color: #00aaaa;
+            background: #f0f8ff;
+            box-shadow: 0 0 0 2px rgba(0, 170, 170, 0.2);
+        }
+        
+        .template-preview h3 {
+            color: #00aaaa;
+            margin: 0 0 10px 0;
+            font-size: 1.2em;
+        }
+        
+        .template-preview p {
+            margin: 5px 0;
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .template-preview strong {
+            color: #333;
+        }
+        
+        .template-section {
+            grid-column: 1 / -1;
+        }
+        
+        .template-description {
+            color: #666;
+            margin-bottom: 20px;
+            font-size: 0.9em;
+            text-align: center;
+        }
+        
+        .control-section {
+            grid-column: 1 / -1;
+        }
+        
         @media (max-width: 768px) {
             .main-content {
                 grid-template-columns: 1fr;
@@ -307,6 +420,22 @@
             
             .status-grid {
                 grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .template-selection {
+                gap: 10px;
+            }
+            
+            .template-label {
+                padding: 15px;
+            }
+            
+            .file-upload-box {
+                padding: 30px 15px;
+            }
+            
+            .upload-icon {
+                font-size: 2.5em;
             }
         }
     </style>
@@ -333,25 +462,75 @@
             <!-- Upload Section -->
             <div class="card upload-section">
                 <h2>Upload CSV File</h2>
+                <p class="upload-description">Upload a CSV file containing participant information (name, email)</p>
                 <form id="uploadForm" method="POST" action="/upload" enctype="multipart/form-data">
-                    <div class="file-input-wrapper">
-                        <input type="file" id="csvFile" name="csv_file" accept=".csv" class="file-input" required>
-                        <label for="csvFile" class="file-input-button">
-                            Choose CSV File
-                        </label>
+                    <div class="file-upload-area">
+                        <div class="file-input-wrapper">
+                            <input type="file" id="csvFile" name="csv_file" accept=".csv" class="file-input" required>
+                            <div class="file-upload-box">
+                                <div class="upload-icon">📄</div>
+                                <div class="upload-text">
+                                    <strong>Click to choose CSV file</strong>
+                                    <span>or drag and drop here</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="file-name" id="fileName"></div>
                     </div>
-                    <div class="file-name" id="fileName"></div>
-                    <button type="submit" class="btn btn-primary" id="uploadBtn">
+                    <button type="submit" class="btn btn-primary upload-btn" id="uploadBtn">
                         Upload File
                     </button>
                 </form>
             </div>
             
+            <!-- Template Selection Section -->
+            <div class="card template-section">
+                <h2>📧 Select Email Template</h2>
+                <p class="template-description">Choose the appropriate email template for your campaign</p>
+                <div class="template-selection">
+                    <div class="template-option">
+                        <input type="radio" id="template-web" name="emailTemplate" value="web" required>
+                        <label for="template-web" class="template-label">
+                            <div class="template-preview">
+                                <h3>🌐 Web Template</h3>
+                                <p><strong>Subject:</strong> [NAVER Vietnam AI Hackathon 2025] Preliminary Assignment Released</p>
+                                <p><strong>Content:</strong> React/React Native To-Do App assignment for Web track</p>
+                                <p><strong>Target:</strong> Applicants before September 8</p>
+                            </div>
+                        </label>
+                    </div>
+                    
+                    <div class="template-option">
+                        <input type="radio" id="template-mobile" name="emailTemplate" value="mobile" required>
+                        <label for="template-mobile" class="template-label">
+                            <div class="template-preview">
+                                <h3>📱 Mobile Template</h3>
+                                <p><strong>Subject:</strong> [NAVER Vietnam AI Hackathon 2025] Preliminary Assignment Released</p>
+                                <p><strong>Content:</strong> Kotlin/Java To-Do App assignment for Mobile track</p>
+                                <p><strong>Target:</strong> Applicants before September 8</p>
+                            </div>
+                        </label>
+                    </div>
+                    
+                    <div class="template-option">
+                        <input type="radio" id="template-web-mobile" name="emailTemplate" value="web_mobile" required>
+                        <label for="template-web-mobile" class="template-label">
+                            <div class="template-preview">
+                                <h3>🌐📱 Web & Mobile Template</h3>
+                                <p><strong>Subject:</strong> [NAVER Vietnam] Your Hackathon Registration is Confirmed: Preliminary Assignment Inside</p>
+                                <p><strong>Content:</strong> Both Web and Mobile tracks with Discord invitation</p>
+                                <p><strong>Target:</strong> Applicants after September 8</p>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
             <!-- Control Section -->
-            <div class="card">
+            <div class="card control-section">
                 <h2>Email Control</h2>
                 <div class="control-buttons">
-                    <button id="startBtn" class="btn btn-success" onclick="startSending()">
+                    <button id="startBtn" class="btn btn-success" onclick="startSending()" disabled>
                         Start Sending
                     </button>
                     <button id="stopBtn" class="btn btn-danger" onclick="stopSending()" disabled>
@@ -393,8 +572,10 @@
             
             <div id="statusInfo">
                 <p><strong>Status:</strong> <span id="statusText">Ready</span></p>
+                <p><strong>Template:</strong> <span id="currentTemplate">-</span></p>
                 <p><strong>Start Time:</strong> <span id="startTime">-</span></p>
                 <p><strong>End Time:</strong> <span id="endTime">-</span></p>
+                <p><strong>Last Processed:</strong> <span id="lastProcessed">-</span></p>
             </div>
         </div>
         
@@ -412,9 +593,43 @@
         
         // File input change handler
         document.getElementById('csvFile').addEventListener('change', function(e) {
-            const fileName = e.target.files[0]?.name || 'No file selected';
+            const file = e.target.files[0];
+            const fileName = file?.name || 'No file selected';
             document.getElementById('fileName').textContent = fileName;
+            updateStartButtonState();
         });
+        
+        // Template selection handler
+        document.querySelectorAll('input[name="emailTemplate"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                updateStartButtonState();
+            });
+        });
+        
+        // Function to update start button state
+        function updateStartButtonState() {
+            const csvFile = document.getElementById('csvFile').files[0];
+            const templateSelected = document.querySelector('input[name="emailTemplate"]:checked');
+            const startBtn = document.getElementById('startBtn');
+            const fileName = document.getElementById('fileName').textContent;
+            
+            // Check if file is uploaded (either by file input or by successful upload)
+            const fileUploaded = csvFile || fileName.includes('successfully');
+            
+            if (fileUploaded && templateSelected) {
+                startBtn.disabled = false;
+                startBtn.textContent = 'Start Sending';
+            } else {
+                startBtn.disabled = true;
+                if (!fileUploaded && !templateSelected) {
+                    startBtn.textContent = 'Upload CSV & Select Template';
+                } else if (!fileUploaded) {
+                    startBtn.textContent = '📁 Upload CSV File';
+                } else if (!templateSelected) {
+                    startBtn.textContent = '📧 Select Template';
+                }
+            }
+        }
         
         // Form submission handler
         document.getElementById('uploadForm').addEventListener('submit', function(e) {
@@ -435,8 +650,8 @@
             .then(data => {
                 if (data.success) {
                     showAlert(data.message, 'success');
-                    document.getElementById('fileName').textContent = 'No file selected';
-                    document.getElementById('csvFile').value = '';
+                    document.getElementById('fileName').textContent = 'File uploaded successfully!';
+                    updateStartButtonState(); // Update button state after upload
                 } else {
                     showAlert(data.message, 'error');
                 }
@@ -452,11 +667,22 @@
         
         // Start email sending
         function startSending() {
+            const selectedTemplate = document.querySelector('input[name="emailTemplate"]:checked');
+            if (!selectedTemplate) {
+                showAlert('Please select an email template first!', 'error');
+                return;
+            }
+            
+            const requestData = {
+                template: selectedTemplate.value
+            };
+            
             fetch('/start_sending', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                }
+                },
+                body: JSON.stringify(requestData)
             })
             .then(response => response.json())
             .then(data => {
@@ -533,8 +759,13 @@
                 // Update progress bar
                 const total = data.total_emails || 0;
                 const sent = data.sent_emails || 0;
+                const failed = data.failed_emails || 0;
                 const progress = total > 0 ? (sent / total) * 100 : 0;
                 document.getElementById('progressFill').style.width = progress + '%';
+                
+                // Update progress text
+                const progressText = total > 0 ? `${sent}/${total} (${progress.toFixed(1)}%)` : '0/0 (0%)';
+                document.getElementById('progressFill').setAttribute('title', `Sent: ${sent}, Failed: ${failed}, Total: ${total}`);
                 
                 // Update status text
                 let statusText = 'Ready';
@@ -555,6 +786,27 @@
                 // Update times
                 document.getElementById('startTime').textContent = data.start_time || '-';
                 document.getElementById('endTime').textContent = data.end_time || '-';
+                
+                // Update template info
+                const selectedTemplate = document.querySelector('input[name="emailTemplate"]:checked');
+                document.getElementById('currentTemplate').textContent = selectedTemplate ? selectedTemplate.value : '-';
+                
+                // Update last processed info
+                if (data.logs && data.logs.length > 0) {
+                    const lastLog = data.logs[data.logs.length - 1];
+                    if (lastLog.message.includes('Processing email')) {
+                        document.getElementById('lastProcessed').textContent = lastLog.message;
+                    } else if (lastLog.message.includes('Email sent successfully')) {
+                        document.getElementById('lastProcessed').textContent = lastLog.message;
+                    } else {
+                        document.getElementById('lastProcessed').textContent = lastLog.message;
+                    }
+                } else {
+                    document.getElementById('lastProcessed').textContent = '-';
+                }
+                
+                // Update start button state
+                updateStartButtonState();
             })
             .catch(error => {
                 console.error('Error updating status:', error);
@@ -573,10 +825,14 @@
                 const allLogs = [...(data.logs || []), ...(data.errors || [])];
                 allLogs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
                 
-                allLogs.slice(0, 20).forEach(log => {
+                allLogs.slice(0, 30).forEach(log => {
                     const logEntry = document.createElement('div');
                     logEntry.className = `log-entry ${log.type}`;
-                    logEntry.textContent = `[${new Date(log.timestamp).toLocaleTimeString()}] ${log.message}`;
+                    
+                    const timestamp = new Date(log.timestamp).toLocaleTimeString();
+                    const message = log.message;
+                    
+                    logEntry.innerHTML = `<span style="color: #888;">[${timestamp}]</span> ${message}`;
                     logsContainer.appendChild(logEntry);
                 });
                 
@@ -610,6 +866,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             updateStatus();
             updateLogs();
+            updateStartButtonState();
         });
     </script>
 </body>

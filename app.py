@@ -16,9 +16,6 @@ import threading
 from datetime import datetime
 from typing import Dict, List, Any, Optional
 from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-from email.mime.base import MIMEBase
-from email import encoders
 import re
 from io import StringIO
 
@@ -31,7 +28,7 @@ load_dotenv()
 
 # Import configuration
 from config import (
-    SMTP_CONFIG, EMAIL_CONFIG, EMAIL_HTML_TEMPLATE, 
+    SMTP_CONFIG, EMAIL_CONFIG, EMAIL_TEMPLATES, 
     EMAIL_TEXT_TEMPLATE, EMAIL_REGEX, TEST_MODE
 )
 
@@ -70,46 +67,36 @@ email_thread = None
 class EmailSender:
     """Class để gửi email hàng loạt"""
     
-    def __init__(self):
+    def __init__(self, template_type='web'):
         self.smtp_config = SMTP_CONFIG['gmail']
         self.email_config = EMAIL_CONFIG.copy()
         self.email_config['sender_email'] = 'khuonggg2924@gmail.com'
         self.email_config['sender_password'] = 'oboxhjcfxkzqnpug'
+        self.template_type = template_type
         
     def validate_email(self, email: str) -> bool:
         """Validate email format"""
         return re.match(EMAIL_REGEX, email) is not None
     
-    def create_email_message(self, recipient_name: str, recipient_email: str) -> MIMEMultipart:
+    def create_email_message(self, recipient_name: str, recipient_email: str) -> MIMEText:
         """Tạo email message"""
-        msg = MIMEMultipart('alternative')
+        # Get template based on type
+        template = EMAIL_TEMPLATES.get(self.template_type, EMAIL_TEMPLATES['web'])
+        
+        # Create text content only
+        text_content = template['text_template'].format(
+            name=recipient_name,
+            web_track_url=self.email_config['web_track_url'],
+            mobile_track_url=self.email_config['mobile_track_url'],
+            support_email=self.email_config['support_email'],
+            discord_link=self.email_config['discord_link']
+        )
+        
+        # Create text message
+        msg = MIMEText(text_content, 'plain', 'utf-8')
         msg['From'] = f"{self.email_config['sender_name']} <{self.email_config['sender_email']}>"
         msg['To'] = recipient_email
-        msg['Subject'] = self.email_config['subject']
-        
-        # Create HTML and text versions
-        html_content = EMAIL_HTML_TEMPLATE.format(
-            name=recipient_name,
-            deadline=self.email_config['deadline'],
-            github_classroom_link=self.email_config['github_classroom_link'],
-            support_email=self.email_config['support_email'],
-            discord_link=self.email_config['discord_link']
-        )
-        
-        text_content = EMAIL_TEXT_TEMPLATE.format(
-            name=recipient_name,
-            deadline=self.email_config['deadline'],
-            github_classroom_link=self.email_config['github_classroom_link'],
-            support_email=self.email_config['support_email'],
-            discord_link=self.email_config['discord_link']
-        )
-        
-        # Attach parts
-        part1 = MIMEText(text_content, 'plain', 'utf-8')
-        part2 = MIMEText(html_content, 'html', 'utf-8')
-        
-        msg.attach(part1)
-        msg.attach(part2)
+        msg['Subject'] = template['subject']
         
         return msg
     
@@ -138,7 +125,7 @@ class EmailSender:
             logger.error(f"Failed to send email to {recipient_name} ({recipient_email}): {str(e)}")
             return False
 
-def send_emails_batch(participants_data: List[Dict[str, str]]):
+def send_emails_batch(participants_data: List[Dict[str, str]], template_type: str = 'web'):
     """Gửi email hàng loạt trong background thread"""
     global email_status, email_thread
     
@@ -155,11 +142,28 @@ def send_emails_batch(participants_data: List[Dict[str, str]]):
         batch_size = int(EMAIL_CONFIG.get('batch_size', 100))
         email_status['total_batches'] = (len(participants_data) + batch_size - 1) // batch_size
         
-        sender = EmailSender()
+        # Log start information
+        email_status['logs'].append({
+            'timestamp': datetime.now().isoformat(),
+            'type': 'info',
+            'message': f"Starting email sending process with {template_type} template"
+        })
+        email_status['logs'].append({
+            'timestamp': datetime.now().isoformat(),
+            'type': 'info',
+            'message': f"Total emails: {len(participants_data)}, Batches: {email_status['total_batches']}, Batch size: {batch_size}"
+        })
+        
+        sender = EmailSender(template_type)
         
         # Process in batches
         for batch_idx in range(email_status['total_batches']):
             if not email_status['is_running']:  # Check if stopped
+                email_status['logs'].append({
+                    'timestamp': datetime.now().isoformat(),
+                    'type': 'warning',
+                    'message': f"Email sending stopped by user at batch {batch_idx + 1}/{email_status['total_batches']}"
+                })
                 break
                 
             email_status['current_batch'] = batch_idx + 1
@@ -167,47 +171,102 @@ def send_emails_batch(participants_data: List[Dict[str, str]]):
             end_idx = min(start_idx + batch_size, len(participants_data))
             batch_data = participants_data[start_idx:end_idx]
             
+            # Log batch start
+            email_status['logs'].append({
+                'timestamp': datetime.now().isoformat(),
+                'type': 'info',
+                'message': f"Processing batch {batch_idx + 1}/{email_status['total_batches']} (emails {start_idx + 1}-{end_idx})"
+            })
+            
             # Send emails in current batch
-            for participant in batch_data:
+            for email_idx, participant in enumerate(batch_data):
                 if not email_status['is_running']:  # Check if stopped
+                    current_email_idx = start_idx + email_idx + 1
+                    email_status['logs'].append({
+                        'timestamp': datetime.now().isoformat(),
+                        'type': 'warning',
+                        'message': f"Email sending stopped by user at email {current_email_idx}/{len(participants_data)} in batch {batch_idx + 1}"
+                    })
                     break
                     
-                name = participant.get('name', '')
                 email = participant.get('identifier', '')
+                # Extract name from email (part before @)
+                name = email.split('@')[0] if '@' in email else email
+                current_email_idx = start_idx + email_idx + 1
+                
+                # Log current email being processed
+                email_status['logs'].append({
+                    'timestamp': datetime.now().isoformat(),
+                    'type': 'info',
+                    'message': f"Processing email {current_email_idx}/{len(participants_data)}: {name} ({email})"
+                })
                 
                 if sender.send_email(name, email):
                     email_status['sent_emails'] += 1
                     email_status['logs'].append({
                         'timestamp': datetime.now().isoformat(),
                         'type': 'success',
-                        'message': f"Email sent to {name} ({email})"
+                        'message': f"✅ Email sent successfully to {name} ({email}) - {email_status['sent_emails']}/{len(participants_data)} completed"
                     })
                 else:
                     email_status['failed_emails'] += 1
                     email_status['errors'].append({
                         'timestamp': datetime.now().isoformat(),
                         'type': 'error',
-                        'message': f"Failed to send email to {name} ({email})"
+                        'message': f"❌ Failed to send email to {name} ({email}) - {email_status['failed_emails']} failed so far"
                     })
                 
                 # Delay between emails
                 time.sleep(float(EMAIL_CONFIG.get('delay_between_emails', 1)))
             
+            # Log batch completion
+            if email_status['is_running']:
+                email_status['logs'].append({
+                    'timestamp': datetime.now().isoformat(),
+                    'type': 'info',
+                    'message': f"✅ Batch {batch_idx + 1}/{email_status['total_batches']} completed. Progress: {email_status['sent_emails']} sent, {email_status['failed_emails']} failed"
+                })
+            
             # Delay between batches
-            if batch_idx < email_status['total_batches'] - 1:
-                time.sleep(float(EMAIL_CONFIG.get('delay_between_batches', 300)))
+            if batch_idx < email_status['total_batches'] - 1 and email_status['is_running']:
+                delay_seconds = float(EMAIL_CONFIG.get('delay_between_batches', 300))
+                email_status['logs'].append({
+                    'timestamp': datetime.now().isoformat(),
+                    'type': 'info',
+                    'message': f"Waiting {delay_seconds} seconds before next batch..."
+                })
+                time.sleep(delay_seconds)
         
-        email_status['end_time'] = datetime.now().isoformat()
-        email_status['is_running'] = False
+        if email_status['is_running']:
+            email_status['end_time'] = datetime.now().isoformat()
+            email_status['is_running'] = False
+            email_status['logs'].append({
+                'timestamp': datetime.now().isoformat(),
+                'type': 'success',
+                'message': f"🎉 Email sending completed! Total: {email_status['sent_emails']} sent, {email_status['failed_emails']} failed"
+            })
+        else:
+            email_status['end_time'] = datetime.now().isoformat()
+            email_status['logs'].append({
+                'timestamp': datetime.now().isoformat(),
+                'type': 'warning',
+                'message': f"⏹️ Email sending stopped by user. Final stats: {email_status['sent_emails']} sent, {email_status['failed_emails']} failed"
+            })
         
     except Exception as e:
         logger.error(f"Error in email sending process: {str(e)}")
         email_status['errors'].append({
             'timestamp': datetime.now().isoformat(),
             'type': 'error',
-            'message': f"Email sending process error: {str(e)}"
+            'message': f"💥 Email sending process error: {str(e)}"
         })
         email_status['is_running'] = False
+        email_status['end_time'] = datetime.now().isoformat()
+        email_status['logs'].append({
+            'timestamp': datetime.now().isoformat(),
+            'type': 'error',
+            'message': f"💥 Process stopped due to error. Final stats: {email_status['sent_emails']} sent, {email_status['failed_emails']} failed"
+        })
 
 
 @app.route('/')
@@ -238,12 +297,12 @@ def upload_csv():
             participants_data = list(csv_reader)
             
             # Validate required columns
-            required_columns = ['identifier', 'name']
+            required_columns = ['identifier']
             if not participants_data:
                 return jsonify({'success': False, 'message': 'CSV file is empty'})
             
             if not all(col in participants_data[0].keys() for col in required_columns):
-                return jsonify({'success': False, 'message': f'CSV must contain columns: {", ".join(required_columns)}'})
+                return jsonify({'success': False, 'message': f'CSV must contain column: {", ".join(required_columns)}'})
             
             # Store in session or global variable
             app.config['participants_data'] = participants_data
@@ -269,12 +328,20 @@ def start_sending():
         if not participants_data:
             return jsonify({'success': False, 'message': 'No participants data found. Please upload CSV first.'})
         
+        # Get template type from request
+        data = request.get_json() or {}
+        template_type = data.get('template', 'web')
+        
+        # Validate template type
+        if template_type not in EMAIL_TEMPLATES:
+            return jsonify({'success': False, 'message': 'Invalid template type'})
+        
         # Start email sending in background thread
-        email_thread = threading.Thread(target=send_emails_batch, args=(participants_data,))
+        email_thread = threading.Thread(target=send_emails_batch, args=(participants_data, template_type))
         email_thread.daemon = True
         email_thread.start()
         
-        return jsonify({'success': True, 'message': 'Email sending started'})
+        return jsonify({'success': True, 'message': f'Email sending started with {template_type} template for {len(participants_data)} participants'})
         
     except Exception as e:
         logger.error(f"Error starting email sending: {str(e)}")
@@ -286,8 +353,16 @@ def stop_sending():
     global email_status
     
     try:
-        email_status['is_running'] = False
-        return jsonify({'success': True, 'message': 'Email sending stopped'})
+        if email_status['is_running']:
+            email_status['is_running'] = False
+            email_status['logs'].append({
+                'timestamp': datetime.now().isoformat(),
+                'type': 'warning',
+                'message': f"🛑 Stop request received. Current progress: {email_status['sent_emails']} sent, {email_status['failed_emails']} failed"
+            })
+            return jsonify({'success': True, 'message': f'Email sending stop requested. Current progress: {email_status["sent_emails"]} sent, {email_status["failed_emails"]} failed'})
+        else:
+            return jsonify({'success': False, 'message': 'Email sending is not currently running'})
         
     except Exception as e:
         logger.error(f"Error stopping email sending: {str(e)}")
