@@ -61,13 +61,6 @@ email_status = {
     'errors': []
 }
 
-# Initialize with a welcome log
-email_status['logs'].append({
-    'timestamp': datetime.now().isoformat(),
-    'type': 'info',
-    'message': '🚀 Email Sender Application Started - Ready to send emails!'
-})
-
 # Email sending thread
 email_thread = None
 
@@ -338,24 +331,12 @@ def upload_csv():
             # Store in session or global variable
             app.config['participants_data'] = participants_data
             
-            # Add log entry
-            email_status['logs'].append({
-                'timestamp': datetime.now().isoformat(),
-                'type': 'success',
-                'message': f'📁 CSV file uploaded successfully: {len(participants_data)} participants loaded'
-            })
-            
             return jsonify({'success': True, 'message': f'Successfully uploaded {len(participants_data)} participants'})
         else:
             return jsonify({'success': False, 'message': 'Please upload a CSV file'})
             
     except Exception as e:
         logger.error(f"Error uploading CSV: {str(e)}")
-        email_status['errors'].append({
-            'timestamp': datetime.now().isoformat(),
-            'type': 'error',
-            'message': f'❌ Error uploading CSV: {str(e)}'
-        })
         return jsonify({'success': False, 'message': f'Error uploading file: {str(e)}'})
 
 @app.route('/start_sending', methods=['POST'])
@@ -378,13 +359,6 @@ def start_sending():
         # Validate template type
         if template_type not in EMAIL_TEMPLATES:
             return jsonify({'success': False, 'message': 'Invalid template type'})
-        
-        # Add log entry
-        email_status['logs'].append({
-            'timestamp': datetime.now().isoformat(),
-            'type': 'info',
-            'message': f'🚀 Starting email sending with {template_type} template for {len(participants_data)} participants'
-        })
         
         # Start email sending in background thread
         email_thread = threading.Thread(target=send_emails_batch, args=(participants_data, template_type))
@@ -426,53 +400,42 @@ def get_status():
 @app.route('/logs')
 def get_logs():
     """Lấy logs"""
+    return jsonify({
+        'logs': email_status['logs'][-100:],  # Last 100 logs
+        'errors': email_status['errors'][-50:],  # Last 50 errors
+        'total_logs': len(email_status['logs']),
+        'total_errors': len(email_status['errors']),
+        'is_running': email_status['is_running'],
+        'timestamp': datetime.now().isoformat()
+    })
+
+@app.route('/test_logs', methods=['POST'])
+def test_logs():
+    """Test endpoint để thêm logs mẫu"""
     try:
-        # Ensure we always return data
-        logs = email_status.get('logs', [])
-        errors = email_status.get('errors', [])
-        
-        # Add timestamp to ensure fresh data
-        current_time = datetime.now().isoformat()
-        
-        response_data = {
-            'logs': logs[-100:] if logs else [],
-            'errors': errors[-50:] if errors else [],
-            'timestamp': current_time,
-            'total_logs': len(logs),
-            'total_errors': len(errors)
-        }
-        
-        logger.info(f"Logs endpoint called - returning {len(response_data['logs'])} logs, {len(response_data['errors'])} errors")
-        return jsonify(response_data)
-    except Exception as e:
-        logger.error(f"Error in get_logs: {str(e)}")
-        return jsonify({
-            'logs': [],
-            'errors': [{'timestamp': datetime.now().isoformat(), 'type': 'error', 'message': f'Error loading logs: {str(e)}'}],
+        # Thêm log test
+        email_status['logs'].append({
             'timestamp': datetime.now().isoformat(),
-            'total_logs': 0,
-            'total_errors': 1
+            'type': 'info',
+            'message': f'🧪 Test log added at {datetime.now().strftime("%H:%M:%S")}'
+        })
+        
+        return jsonify({
+            'success': True,
+            'message': 'Test log added successfully',
+            'total_logs': len(email_status['logs']),
+            'last_log': email_status['logs'][-1] if email_status['logs'] else None
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': f'Error adding test log: {str(e)}'
         })
 
 @app.route('/health')
 def health_check():
     """Health check endpoint"""
     return "healthy", 200
-
-@app.route('/debug/logs')
-def debug_logs():
-    """Debug endpoint to check logs status"""
-    try:
-        return jsonify({
-            'email_status_keys': list(email_status.keys()),
-            'logs_count': len(email_status.get('logs', [])),
-            'errors_count': len(email_status.get('errors', [])),
-            'is_running': email_status.get('is_running', False),
-            'last_log': email_status.get('logs', [])[-1] if email_status.get('logs') else None,
-            'timestamp': datetime.now().isoformat()
-        })
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     # Create templates directory if it doesn't exist

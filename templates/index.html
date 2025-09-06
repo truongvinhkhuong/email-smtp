@@ -584,16 +584,19 @@
         <div class="logs-section">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                 <div style="display: flex; align-items: center; gap: 10px;">
-                    <h3>Logs</h3>
+                    <h3>📋 Real-time Logs</h3>
                     <span id="connectionStatus" style="font-size: 12px; padding: 2px 6px; border-radius: 3px; background: #27ae60; color: white;">
-                        Connected
+                        ● Connected
                     </span>
                 </div>
                 <div style="display: flex; gap: 5px;">
                     <button onclick="refreshStatus()" class="btn btn-secondary" style="padding: 5px 10px; font-size: 12px;">
                         🔄 Refresh
                     </button>
-                    <button onclick="debugLogs()" class="btn btn-info" style="padding: 5px 10px; font-size: 12px;">
+                    <button onclick="testLogs()" class="btn btn-info" style="padding: 5px 10px; font-size: 12px;">
+                        🧪 Test
+                    </button>
+                    <button onclick="debugLogs()" class="btn btn-warning" style="padding: 5px 10px; font-size: 12px;">
                         🔍 Debug
                     </button>
                 </div>
@@ -829,17 +832,16 @@
             });
         }
         
-        // Update logs with better error handling and retry mechanism
-        let logRetryCount = 0;
-        const maxRetries = 3;
-        
+        // Update logs with better error handling and debugging
         function updateLogs() {
             const connectionStatus = document.getElementById('connectionStatus');
             const logsContainer = document.getElementById('logsContainer');
             
             // Show loading state
-            connectionStatus.textContent = '● Loading...';
+            connectionStatus.textContent = 'Loading...';
             connectionStatus.style.background = '#f39c12';
+            
+            console.log('Fetching logs...');
             
             fetch('/logs?' + new Date().getTime(), {
                 method: 'GET',
@@ -850,14 +852,14 @@
                 }
             })
             .then(response => {
+                console.log('Logs response status:', response.status);
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 return response.json();
             })
             .then(data => {
-                // Reset retry count on success
-                logRetryCount = 0;
+                console.log('Logs data received:', data);
                 
                 // Update connection status
                 connectionStatus.textContent = '● Connected';
@@ -868,23 +870,28 @@
                 
                 // Show recent logs
                 const allLogs = [...(data.logs || []), ...(data.errors || [])];
+                console.log('All logs:', allLogs);
+                
                 allLogs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
                 
                 if (allLogs.length > 0) {
-                    allLogs.slice(0, 50).forEach(log => {
+                    console.log('Displaying', allLogs.length, 'logs');
+                    allLogs.slice(0, 50).forEach((log, index) => {
                         const logEntry = document.createElement('div');
                         logEntry.className = `log-entry ${log.type}`;
                         
                         const timestamp = new Date(log.timestamp).toLocaleTimeString();
-                        const message = log.message;
+                        const message = log.message || 'No message';
                         
                         logEntry.innerHTML = `<span style="color: #888;">[${timestamp}]</span> ${message}`;
                         logsContainer.appendChild(logEntry);
+                        console.log(`Added log ${index + 1}:`, log);
                     });
                 } else {
+                    console.log('No logs to display');
                     const logEntry = document.createElement('div');
                     logEntry.className = 'log-entry info';
-                    logEntry.innerHTML = '📝 No logs available yet. Upload a CSV file and start sending emails to see logs here.';
+                    logEntry.innerHTML = 'No logs available yet. Upload a CSV file and start sending emails to see logs here.';
                     logsContainer.appendChild(logEntry);
                 }
                 
@@ -894,20 +901,7 @@
             .catch(error => {
                 console.error('Error updating logs:', error);
                 
-                // Retry mechanism
-                if (logRetryCount < maxRetries) {
-                    logRetryCount++;
-                    connectionStatus.textContent = `● Retrying (${logRetryCount}/${maxRetries})`;
-                    connectionStatus.style.background = '#f39c12';
-                    
-                    // Retry after 2 seconds
-                    setTimeout(() => {
-                        updateLogs();
-                    }, 2000);
-                    return;
-                }
-                
-                // Max retries reached
+                // Update connection status to error
                 connectionStatus.textContent = '● Error';
                 connectionStatus.style.background = '#e74c3c';
                 
@@ -915,25 +909,55 @@
             });
         }
         
+        // Test logs function
+        function testLogs() {
+            console.log('Testing logs...');
+            fetch('/test_logs', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Test logs response:', data);
+                if (data.success) {
+                    showAlert(`Test log added! Total logs: ${data.total_logs}`, 'success');
+                    // Refresh logs display
+                    updateLogs();
+                } else {
+                    showAlert('Error adding test log: ' + data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Test logs error:', error);
+                showAlert('Test logs error: ' + error.message, 'error');
+            });
+        }
+        
         // Debug logs function
         function debugLogs() {
-            fetch('/debug/logs?' + new Date().getTime())
+            console.log('Debugging logs...');
+            fetch('/logs?' + new Date().getTime())
             .then(response => response.json())
             .then(data => {
                 console.log('Debug logs data:', data);
-                alert(`Debug Info:\n` +
-                      `Logs count: ${data.logs_count}\n` +
-                      `Errors count: ${data.errors_count}\n` +
-                      `Is running: ${data.is_running}\n` +
-                      `Last log: ${data.last_log ? data.last_log.message : 'None'}\n` +
-                      `Timestamp: ${data.timestamp}`);
+                const debugInfo = `Debug Info:
+Total logs: ${data.total_logs}
+Total errors: ${data.total_errors}
+Is running: ${data.is_running}
+Last log: ${data.logs && data.logs.length > 0 ? data.logs[data.logs.length - 1].message : 'None'}
+Timestamp: ${data.timestamp}`;
+                
+                alert(debugInfo);
+                console.log('Debug info:', debugInfo);
             })
             .catch(error => {
                 console.error('Debug error:', error);
                 alert('Debug error: ' + error.message);
             });
         }
-
+        
         // Show alert
         function showAlert(message, type) {
             const alertDiv = document.createElement('div');
