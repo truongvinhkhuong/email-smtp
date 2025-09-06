@@ -85,7 +85,7 @@ You are now invited to complete your **Preliminary Assignment**:
 • **Executable demo**: Deployment link or local execution guide
 • **Project documentation**: An updated README.md file, completed with all required content
 
-📖 **Assignment Platform**: [https://classroom.github.com/a/mImcFdiB](https://classroom.github.com/a/mImcFdiB)
+📖 **Assignment Platform**: [https://classroom.github.com/a/YHSq4TPZ](https://classroom.github.com/a/YHSq4TPZ)
 You can view the full details and instructions in the Platform.
 
 ⚠️ **Please note**:
@@ -188,7 +188,7 @@ You are now invited to complete your **Preliminary Assignment**:
 • **Executable demo**: APK file
 • **Project documentation**: An updated README.md file, completed with all required content
 
-📖 **Assignment Platform**: [https://classroom.github.com/a/U6KLaMSq](https://classroom.github.com/a/U6KLaMSq)
+📖 **Assignment Platform**: [https://classroom.github.com/a/zqVInknP](https://classroom.github.com/a/zqVInknP)
 You can view the full details and instructions in the Platform.
 
 ⚠️ **Please note**:
@@ -365,8 +365,8 @@ We wish you the best of luck and are excited to see your creativity in action �
         <div class="track-info">
             <h3>📖 <strong>Assignment Platform</strong></h3>
             <ul>
-                <li><strong>Web</strong>: <a href="https://classroom.github.com/a/mImcFdiB">https://classroom.github.com/a/mImcFdiB</a></li>
-                <li><strong>Mobile Android</strong>: <a href="https://classroom.github.com/a/U6KLaMSq">https://classroom.github.com/a/U6KLaMSq</a></li>
+                <li><strong>Web</strong>: <a href="https://classroom.github.com/a/YHSq4TPZ">https://classroom.github.com/a/YHSq4TPZ</a></li>
+                <li><strong>Mobile Android</strong>: <a href="https://classroom.github.com/a/zqVInknP">https://classroom.github.com/a/zqVInknP</a></li>
             </ul>
             <p><em>Applicants must select a track when applying, track changes are not allowed after submission.</em></p>
         </div>
