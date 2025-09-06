@@ -45,8 +45,8 @@ EMAIL_CONFIG = {
     'subject': '[NAVER Vietnam AI Hackathon 2025] Preliminary Assignment Released',
     
     # URLs cho các tracks
-    'mobile_track_url': 'https://hackathon.naver.com/mobile-track',
-    'web_track_url': 'https://hackathon.naver.com/web-track',
+    'mobile_track_url': 'https://classroom.github.com/a/zqVInknP',
+    'web_track_url': 'https://classroom.github.com/a/YHSq4TPZ',
     
     # Thông tin cuộc thi
     'deadline': 'Sep 15, 2025 – 23:59 ICT',
@@ -144,7 +144,7 @@ We wish you the best of luck and are excited to see your creativity in action �
         </div>
         
         <div class="section">
-            <p>📖 <strong>Assignment Platform</strong>: <a href="https://classroom.github.com/a/mImcFdiB">https://classroom.github.com/a/mImcFdiB</a></p>
+            <p>📖 <strong>Assignment Platform</strong>: <a href="https://classroom.github.com/a/YHSq4TPZ">https://classroom.github.com/a/YHSq4TPZ</a></p>
             <p>You can view the full details and instructions in the Platform.</p>
         </div>
         
@@ -247,7 +247,7 @@ We wish you the best of luck and are excited to see your creativity in action �
         </div>
         
         <div class="section">
-            <p>📖 <strong>Assignment Platform</strong>: <a href="https://classroom.github.com/a/U6KLaMSq">https://classroom.github.com/a/U6KLaMSq</a></p>
+            <p>📖 <strong>Assignment Platform</strong>: <a href="https://classroom.github.com/a/zqVInknP">https://classroom.github.com/a/zqVInknP</a></p>
             <p>You can view the full details and instructions in the Platform.</p>
         </div>
         
@@ -288,8 +288,8 @@ Thank you for registering for the **NAVER Vietnam AI Hackathon 2025** - your app
 You are now invited to complete your **Preliminary Assignment**: **Build a To-Do App**
 
 📖 **Assignment Platform**
-• **Web**: [https://classroom.github.com/a/mImcFdiB](https://classroom.github.com/a/mImcFdiB)
-• **Mobile Android**: [https://classroom.github.com/a/U6KLaMSq](https://classroom.github.com/a/U6KLaMSq)
+• **Web**: [https://classroom.github.com/a/YHSq4TPZ](https://classroom.github.com/a/YHSq4TPZ)
+• **Mobile Android**: [https://classroom.github.com/a/zqVInknP](https://classroom.github.com/a/zqVInknP)
 
 *Applicants must select a track when applying, track changes are not allowed after submission.*
 
