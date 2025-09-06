@@ -68,10 +68,10 @@ class EmailSender:
     """Class để gửi email hàng loạt"""
     
     def __init__(self, template_type='web'):
-        self.smtp_config = SMTP_CONFIG['gmail']
+        self.smtp_config = SMTP_CONFIG['naver']
         self.email_config = EMAIL_CONFIG.copy()
-        self.email_config['sender_email'] = 'khuonggg2924@gmail.com'
-        self.email_config['sender_password'] = 'oboxhjcfxkzqnpug'
+        self.email_config['sender_email'] = 'devgrowth@naver.com'
+        self.email_config['sender_password'] = '5N6WJ2B3596R'
         self.template_type = template_type
         
     def validate_email(self, email: str) -> bool:
@@ -112,14 +112,25 @@ class EmailSender:
             msg = self.create_email_message(recipient_name, recipient_email)
             
             # Connect to SMTP server
-            with smtplib.SMTP(self.smtp_config['server'], self.smtp_config['port']) as server:
-                server.starttls()
-                server.login(self.email_config['sender_email'], self.email_config['sender_password'])
-                
-                # Send email
-                server.send_message(msg)
-                logger.info(f"Email sent successfully to {recipient_name} ({recipient_email})")
-                return True
+            if self.smtp_config['use_ssl']:
+                # Use SSL connection for Naver
+                with smtplib.SMTP_SSL(self.smtp_config['server'], self.smtp_config['port']) as server:
+                    server.login(self.email_config['sender_email'], self.email_config['sender_password'])
+                    
+                    # Send email
+                    server.send_message(msg)
+                    logger.info(f"Email sent successfully to {recipient_name} ({recipient_email})")
+                    return True
+            else:
+                # Use TLS connection for other providers
+                with smtplib.SMTP(self.smtp_config['server'], self.smtp_config['port']) as server:
+                    server.starttls()
+                    server.login(self.email_config['sender_email'], self.email_config['sender_password'])
+                    
+                    # Send email
+                    server.send_message(msg)
+                    logger.info(f"Email sent successfully to {recipient_name} ({recipient_email})")
+                    return True
                 
         except Exception as e:
             logger.error(f"Failed to send email to {recipient_name} ({recipient_email}): {str(e)}")

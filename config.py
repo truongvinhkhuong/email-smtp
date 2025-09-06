@@ -11,6 +11,13 @@ SMTP_CONFIG: Dict[str, Any] = {
         'use_tls': True,
         'use_ssl': False
     },
+    # Naver Configuration
+    'naver': {
+        'server': 'smtp.naver.com',
+        'port': 465,
+        'use_tls': False,
+        'use_ssl': True
+    },
     # Outlook Configuration
     'outlook': {
         'server': 'smtp-mail.outlook.com',
