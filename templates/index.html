@@ -256,8 +256,9 @@
             border-radius: 10px;
             padding: 20px;
             margin-top: 20px;
-            max-height: 300px;
+            max-height: 400px;
             overflow-y: auto;
+            border: 1px solid #4a5f7a;
         }
         
         .logs-section h3 {
@@ -581,8 +582,18 @@
         
         <!-- Logs Section -->
         <div class="logs-section">
-            <h3>Recent Logs</h3>
-            <div id="logsContainer">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <h3>📋 Real-time Logs</h3>
+                    <span id="connectionStatus" style="font-size: 12px; padding: 2px 6px; border-radius: 3px; background: #27ae60; color: white;">
+                        ● Connected
+                    </span>
+                </div>
+                <button onclick="refreshStatus()" class="btn btn-secondary" style="padding: 5px 10px; font-size: 12px;">
+                    🔄 Refresh
+                </button>
+            </div>
+            <div id="logsContainer" class="logs-container">
                 <div class="log-entry info">System ready. Upload a CSV file to begin.</div>
             </div>
         </div>
@@ -735,7 +746,7 @@
             statusInterval = setInterval(() => {
                 updateStatus();
                 updateLogs();
-            }, 2000);
+            }, 1000); // Reduced to 1 second for more real-time updates
         }
         
         // Stop status updates
@@ -813,11 +824,28 @@
             });
         }
         
-        // Update logs
+        // Update logs with better error handling and caching prevention
         function updateLogs() {
-            fetch('/logs')
-            .then(response => response.json())
+            const connectionStatus = document.getElementById('connectionStatus');
+            
+            fetch('/logs?' + new Date().getTime(), {
+                method: 'GET',
+                headers: {
+                    'Cache-Control': 'no-cache',
+                    'Pragma': 'no-cache'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
             .then(data => {
+                // Update connection status
+                connectionStatus.textContent = '● Connected';
+                connectionStatus.style.background = '#27ae60';
+                
                 const logsContainer = document.getElementById('logsContainer');
                 logsContainer.innerHTML = '';
                 
@@ -825,7 +853,7 @@
                 const allLogs = [...(data.logs || []), ...(data.errors || [])];
                 allLogs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
                 
-                allLogs.slice(0, 30).forEach(log => {
+                allLogs.slice(0, 50).forEach(log => {
                     const logEntry = document.createElement('div');
                     logEntry.className = `log-entry ${log.type}`;
                     
@@ -842,9 +870,19 @@
                     logEntry.textContent = 'No logs available yet.';
                     logsContainer.appendChild(logEntry);
                 }
+                
+                // Auto-scroll to bottom of logs
+                logsContainer.scrollTop = logsContainer.scrollHeight;
             })
             .catch(error => {
                 console.error('Error updating logs:', error);
+                
+                // Update connection status to error
+                connectionStatus.textContent = '● Error';
+                connectionStatus.style.background = '#e74c3c';
+                
+                const logsContainer = document.getElementById('logsContainer');
+                logsContainer.innerHTML = '<div class="log-entry error">Error loading logs: ' + error.message + '</div>';
             });
         }
         
