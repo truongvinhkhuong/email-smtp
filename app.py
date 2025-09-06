@@ -16,6 +16,7 @@ import threading
 from datetime import datetime
 from typing import Dict, List, Any, Optional
 from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 import re
 from io import StringIO
 
@@ -80,25 +81,29 @@ class EmailSender:
         email = email.strip()
         return re.match(EMAIL_REGEX, email) is not None
     
-    def create_email_message(self, recipient_name: str, recipient_email: str) -> MIMEText:
+    def create_email_message(self, recipient_name: str, recipient_email: str) -> MIMEMultipart:
         """Tạo email message"""
         # Get template based on type
         template = EMAIL_TEMPLATES.get(self.template_type, EMAIL_TEMPLATES['web'])
         
-        # Create text content only
-        text_content = template['text_template'].format(
-            name=recipient_name,
-            web_track_url=self.email_config['web_track_url'],
-            mobile_track_url=self.email_config['mobile_track_url'],
-            support_email=self.email_config['support_email'],
-            discord_link=self.email_config['discord_link']
-        )
+        # Create HTML content
+        html_content = template['html_template']
         
-        # Create text message
-        msg = MIMEText(text_content, 'plain', 'utf-8')
+        # Create text content (fallback)
+        text_content = template['text_template']
+        
+        # Create multipart message
+        msg = MIMEMultipart('alternative')
         msg['From'] = f"{self.email_config['sender_name']} <{self.email_config['sender_email']}>"
         msg['To'] = recipient_email
         msg['Subject'] = template['subject']
+        
+        # Add both text and HTML parts
+        text_part = MIMEText(text_content, 'plain', 'utf-8')
+        html_part = MIMEText(html_content, 'html', 'utf-8')
+        
+        msg.attach(text_part)
+        msg.attach(html_part)
         
         return msg
     
