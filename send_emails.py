@@ -124,6 +124,8 @@ class EmailSender:
             
     def _validate_email(self, email: str) -> bool:
         """Validate email format"""
+        # Strip whitespace before validation
+        email = email.strip()
         return bool(re.match(EMAIL_REGEX, email))
         
     def _create_email_content(self, name: str = '') -> Tuple[str, str]:
@@ -241,6 +243,10 @@ class EmailSender:
             True nếu gửi thành công
         """
         try:
+            # Strip whitespace from email and name
+            to_email = to_email.strip()
+            name = name.strip()
+            
             # Validate email
             if not self._validate_email(to_email):
                 self.logger.error(f"Invalid email format: {to_email}")
@@ -276,14 +282,17 @@ class EmailSender:
             with open(csv_file, 'r', encoding='utf-8') as f:
                 reader = csv.DictReader(f)
                 for row in reader:
+                    # Strip whitespace from all fields
+                    cleaned_row = {key: value.strip() if value else value for key, value in row.items()}
+                    
                     # Validate required fields
-                    if 'identifier' not in row or not row['identifier'].strip():
-                        self.logger.warning(f"Invalid row (missing identifier): {row}")
+                    if 'identifier' not in cleaned_row or not cleaned_row['identifier']:
+                        self.logger.warning(f"Invalid row (missing identifier): {cleaned_row}")
                         continue
                         
                     participants.append({
-                        'email': row['identifier'].strip(),
-                        'name': row.get('name', '').strip()
+                        'email': cleaned_row['identifier'],
+                        'name': cleaned_row.get('name', '')
                     })
                     
             self.logger.info(f"Loaded {len(participants)} participants from CSV")

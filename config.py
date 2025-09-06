@@ -84,7 +84,7 @@ What you need to submit (by Sep 15, 18:00 Vietnam time):
 - Executable demo: Deployment link or local execution guide
 - Project documentation: An updated README.md file, completed with all required content.
 
-📖 Assignment Platform: https://classroom.github.com/a/mImcFdiB
+📖 Assignment Platform: [https://classroom.github.com/a/mImcFdiB](https://classroom.github.com/a/mImcFdiB)
 You can view the full details and instructions in Platform.
 
 ⚠️ Please note:
@@ -92,7 +92,7 @@ You can view the full details and instructions in Platform.
 - Late submissions will not be accepted.
 - Deadline: Sep 15, 2025 - 18:00 (strict cutoff)
 
-If you have any issue, please submit this form: https://forms.gle/BQwvwmitbh37ZvCF8
+If you have any issue, please submit this form: [https://forms.gle/BQwvwmitbh37ZvCF8](https://forms.gle/BQwvwmitbh37ZvCF8)
 
 We wish you the best of luck and are excited to see your creativity in action 🚀.
 
@@ -116,7 +116,7 @@ What you need to submit (by Sep 15, 18:00 Vietnam time):
 - Executable demo: APK file
 - Project documentation: An updated README.md file, completed with all required content.
 
-📖 Assignment Platform: https://classroom.github.com/a/U6KLaMSq
+📖 Assignment Platform: [https://classroom.github.com/a/U6KLaMSq](https://classroom.github.com/a/U6KLaMSq)
 You can view the full details and instructions in Platform.
 
 ⚠️ Please note:
@@ -124,7 +124,7 @@ You can view the full details and instructions in Platform.
 - Late submissions will not be accepted.
 - Deadline: Sep 15, 2025 - 18:00 (strict cutoff)
 
-If you have any issue, please submit this form: https://forms.gle/BQwvwmitbh37ZvCF8
+If you have any issue, please submit this form: [https://forms.gle/BQwvwmitbh37ZvCF8](https://forms.gle/BQwvwmitbh37ZvCF8)
 
 We wish you the best of luck and are excited to see your creativity in action 🚀.
 
@@ -145,8 +145,8 @@ What's Next
 You are now invited to complete your Preliminary Assignment: Build a To-Do App 
 
 📖 Assignment Platform
-Web: https://classroom.github.com/a/mImcFdiB
-Mobile Android: https://classroom.github.com/a/U6KLaMSq
+Web: [https://classroom.github.com/a/mImcFdiB](https://classroom.github.com/a/mImcFdiB)
+Mobile Android: [https://classroom.github.com/a/U6KLaMSq](https://classroom.github.com/a/U6KLaMSq)
 Applicants must select a track when applying, track changes are not allowed after submission.
 
 What you need to submit (by Sep 15, 18:00 Vietnam time):
@@ -161,7 +161,7 @@ You can view the full details and instructions in the Assignment Platform.
 - Late submissions will not be accepted.
 - Deadline: Sep 15, 2025 – 18:00 (strict cutoff)
 
-If you have any issue, please submit this form: https://forms.gle/BQwvwmitbh37ZvCF8
+If you have any issue, please submit this form: [https://forms.gle/BQwvwmitbh37ZvCF8](https://forms.gle/BQwvwmitbh37ZvCF8)
 
 Join Our Official Discord - It's Where Everything Happens!
 To make the most out of your hackathon journey, we strongly recommend joining our Discord Community:

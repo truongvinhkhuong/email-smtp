@@ -76,6 +76,8 @@ class EmailSender:
         
     def validate_email(self, email: str) -> bool:
         """Validate email format"""
+        # Strip whitespace before validation
+        email = email.strip()
         return re.match(EMAIL_REGEX, email) is not None
     
     def create_email_message(self, recipient_name: str, recipient_email: str) -> MIMEText:
@@ -200,7 +202,7 @@ def send_emails_batch(participants_data: List[Dict[str, str]], template_type: st
                     })
                     break
                     
-                email = participant.get('identifier', '')
+                email = participant.get('identifier', '').strip()
                 # Extract name from email (part before @)
                 name = email.split('@')[0] if '@' in email else email
                 current_email_idx = start_idx + email_idx + 1
@@ -305,7 +307,13 @@ def upload_csv():
             
             # Parse CSV using built-in csv module
             csv_reader = csv.DictReader(csv_io)
-            participants_data = list(csv_reader)
+            participants_data = []
+            
+            # Process each row and strip whitespace
+            for row in csv_reader:
+                # Strip whitespace from all values
+                cleaned_row = {key: value.strip() if value else value for key, value in row.items()}
+                participants_data.append(cleaned_row)
             
             # Validate required columns
             required_columns = ['identifier']
