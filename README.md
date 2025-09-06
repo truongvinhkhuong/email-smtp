@@ -54,17 +54,11 @@ chmod +x start_development.sh start_production.sh
 
 ## 📧 Email Configuration
 
-### Gmail Setup
-The application is pre-configured with:
-- **Email**: khuonggg2924@gmail.com
-- **Password**: oboxhjcfxkzqnpug (App Password)
-
 ### CSV Format
-Create a CSV file with participant data:
 ```csv
-identifier,name
-email1@example.com,John Doe
-email2@example.com,Jane Smith
+identifier
+email1@example.com
+email2@example.com
 ```
 
 ## Production Deployment
