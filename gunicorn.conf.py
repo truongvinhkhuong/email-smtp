@@ -56,9 +56,7 @@ graceful_timeout = 30
 # Forwarded allow ips (for nginx proxy)
 forwarded_allow_ips = '*'  # Allow all IPs for Docker
 
-# Secure headers
+# Secure headers - Fix contradictory scheme headers
 secure_scheme_headers = {
-    'X-FORWARDED-PROTOCOL': 'ssl',
     'X-FORWARDED-PROTO': 'https',
-    'X-FORWARDED-FOR': 'for',
 }
