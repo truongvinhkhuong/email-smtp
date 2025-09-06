@@ -77,7 +77,7 @@ What you need to submit (by Sep 15, 18:00 Vietnam time):
 - Executable demo: Deployment link or local execution guide
 - Project documentation: An updated README.md file, completed with all required content.
 
-📖 Assignment Platform: {web_track_url}
+📖 Assignment Platform: https://classroom.github.com/a/mImcFdiB
 You can view the full details and instructions in Platform.
 
 ⚠️ Please note:
@@ -109,7 +109,7 @@ What you need to submit (by Sep 15, 18:00 Vietnam time):
 - Executable demo: APK file
 - Project documentation: An updated README.md file, completed with all required content.
 
-📖 Assignment Platform: {mobile_track_url}
+📖 Assignment Platform: https://classroom.github.com/a/U6KLaMSq
 You can view the full details and instructions in Platform.
 
 ⚠️ Please note:
@@ -138,8 +138,8 @@ What's Next
 You are now invited to complete your Preliminary Assignment: Build a To-Do App 
 
 📖 Assignment Platform
-Web: {web_track_url}
-Mobile Android: {mobile_track_url}
+Web: https://classroom.github.com/a/mImcFdiB
+Mobile Android: https://classroom.github.com/a/U6KLaMSq
 Applicants must select a track when applying, track changes are not allowed after submission.
 
 What you need to submit (by Sep 15, 18:00 Vietnam time):
