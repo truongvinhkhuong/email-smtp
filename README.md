@@ -1,9 +1,6 @@
-# 🚀 NAVER Vietnam AI Hackathon - Email Sender
+# NAVER Vietnam AI Hackathon - Email Sender
 
-## 📋 Overview
-A comprehensive web application for sending bulk emails to hackathon participants with a modern UI and production-ready deployment configuration.
-
-## ✨ Features
+## Features
 - **Modern Web UI** - Beautiful, responsive interface with real-time status updates
 - **CSV Upload** - Easy file upload with validation
 - **Bulk Email Sending** - Send personalized emails to hundreds of participants
@@ -13,7 +10,7 @@ A comprehensive web application for sending bulk emails to hackathon participant
 - **Security** - Rate limiting, SSL/TLS, and secure headers
 - **Resume Functionality** - Continue interrupted email campaigns
 
-## 🛠️ Quick Start
+## Quick Start
 
 ### Development Mode
 ```bash
@@ -30,7 +27,7 @@ chmod +x start_development.sh start_production.sh
 ./start_production.sh
 ```
 
-## 📁 Project Structure
+## Project Structure
 ```
 ├── app.py                    # Main Flask application
 ├── config.py                 # Email and SMTP configuration
@@ -47,7 +44,7 @@ chmod +x start_development.sh start_production.sh
 └── DEPLOYMENT.md            # Detailed deployment guide
 ```
 
-## 🌐 Web Interface
+## Web Interface
 
 ### Main Features
 - **File Upload**: Drag & drop CSV file upload
@@ -60,7 +57,7 @@ chmod +x start_development.sh start_production.sh
 - `/` - Main application interface
 - `/upload` - CSV file upload
 - `/start_sending` - Start email campaign
-- `/stop_sending` - Stop email campaign
+- `/stop_sending` - Stop email campaign 
 - `/status` - Get sending status (JSON)
 - `/logs` - Get recent logs (JSON)
 - `/health` - Health check endpoint
@@ -80,13 +77,8 @@ email1@example.com,John Doe
 email2@example.com,Jane Smith
 ```
 
-## 🚀 Production Deployment
+## Production Deployment
 
-### Prerequisites
-- Ubuntu/Debian server
-- Python 3.6+
-- Nginx
-- SSL certificate for your domain
 
 ### Domain Configuration
 - **Domain**: smtp.truongvinhkhuong.io.vn
@@ -99,7 +91,7 @@ email2@example.com,Jane Smith
 3. **Configure SSL**: Automatic with Let's Encrypt
 4. **Access application**: https://smtp.truongvinhkhuong.io.vn
 
-## 🔧 Configuration
+## Configuration
 
 ### Environment Variables
 ```bash
@@ -125,7 +117,7 @@ Edit `config.py` to modify:
 - Batch processing parameters
 - UI theme colors
 
-## 📊 Monitoring & Logs
+## Monitoring & Logs
 
 ### Real-time Monitoring
 - Live progress bar
@@ -147,7 +139,7 @@ curl https://smtp.truongvinhkhuong.io.vn/health
 sudo systemctl status email-sender
 ```
 
-## 🧪 Testing
+## Testing
 
 ### Run Tests
 ```bash
@@ -165,7 +157,7 @@ python3 test_app.py https://smtp.truongvinhkhuong.io.vn
 - Status and logs endpoints
 - Email sending process
 
-## 🛡️ Security Features
+## Security Features
 
 ### Application Security
 - Rate limiting on API endpoints
@@ -185,7 +177,7 @@ python3 test_app.py https://smtp.truongvinhkhuong.io.vn
 - Email validation
 - Batch processing limits
 
-## 🔄 Maintenance
+## Maintenance
 
 ### Updates
 ```bash
@@ -214,7 +206,7 @@ sudo journalctl -u email-sender -f
 sudo tail -f /var/log/nginx/smtp.truongvinhkhuong.io.vn.access.log
 ```
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
 ### Common Issues
 1. **Service won't start**
@@ -240,7 +232,7 @@ sudo tail -f /var/log/nginx/smtp.truongvinhkhuong.io.vn.access.log
    sudo certbot renew
    ```
 
-## 📞 Support
+## Support
 
 ### Getting Help
 1. Check the logs first
@@ -262,13 +254,3 @@ curl https://smtp.truongvinhkhuong.io.vn/health
 python3 test_app.py
 ```
 
-## 🎯 Key URLs
-
-- **Application**: https://smtp.truongvinhkhuong.io.vn
-- **Health Check**: https://smtp.truongvinhkhuong.io.vn/health
-- **Status API**: https://smtp.truongvinhkhuong.io.vn/status
-- **Logs API**: https://smtp.truongvinhkhuong.io.vn/logs
-
----
-
-**🎉 Ready to send emails to your hackathon participants!**
