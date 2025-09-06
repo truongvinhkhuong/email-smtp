@@ -400,15 +400,53 @@ def get_status():
 @app.route('/logs')
 def get_logs():
     """Lấy logs"""
-    return jsonify({
-        'logs': email_status['logs'][-100:],  # Last 100 logs
-        'errors': email_status['errors'][-50:]  # Last 50 errors
-    })
+    try:
+        # Ensure we always return data
+        logs = email_status.get('logs', [])
+        errors = email_status.get('errors', [])
+        
+        # Add timestamp to ensure fresh data
+        current_time = datetime.now().isoformat()
+        
+        response_data = {
+            'logs': logs[-100:] if logs else [],
+            'errors': errors[-50:] if errors else [],
+            'timestamp': current_time,
+            'total_logs': len(logs),
+            'total_errors': len(errors)
+        }
+        
+        logger.info(f"Logs endpoint called - returning {len(response_data['logs'])} logs, {len(response_data['errors'])} errors")
+        return jsonify(response_data)
+    except Exception as e:
+        logger.error(f"Error in get_logs: {str(e)}")
+        return jsonify({
+            'logs': [],
+            'errors': [{'timestamp': datetime.now().isoformat(), 'type': 'error', 'message': f'Error loading logs: {str(e)}'}],
+            'timestamp': datetime.now().isoformat(),
+            'total_logs': 0,
+            'total_errors': 1
+        })
 
 @app.route('/health')
 def health_check():
     """Health check endpoint"""
     return "healthy", 200
+
+@app.route('/debug/logs')
+def debug_logs():
+    """Debug endpoint to check logs status"""
+    try:
+        return jsonify({
+            'email_status_keys': list(email_status.keys()),
+            'logs_count': len(email_status.get('logs', [])),
+            'errors_count': len(email_status.get('errors', [])),
+            'is_running': email_status.get('is_running', False),
+            'last_log': email_status.get('logs', [])[-1] if email_status.get('logs') else None,
+            'timestamp': datetime.now().isoformat()
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     # Create templates directory if it doesn't exist
