@@ -20,7 +20,7 @@ services:
     env_file:
       - .env
     volumes:
-      - ./logs:/app/logs
+      - logs:/app/logs  # Use named volume for logs
       - ./templates:/app/templates
       - ./static:/app/static
       - ./participants_test.csv:/app/participants_test.csv
@@ -46,6 +46,10 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
+
+volumes:
+  logs:
+    driver: local
 
 networks:
   email-network:

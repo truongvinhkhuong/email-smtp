@@ -30,6 +30,9 @@ RUN mkdir -p logs static templates
 # Create non-root user for security
 RUN useradd --create-home --shell /bin/bash app && \
     chown -R app:app /app
+
+# Set proper permissions for logs directory
+RUN chmod 755 logs && chown app:app logs
 USER app
 
 # Expose port
